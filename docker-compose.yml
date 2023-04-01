@@ -1,0 +1,31 @@
+version: "3.5"
+networks:
+  mtq:
+    name: mtd-network
+services:
+  queue:
+    container_name: queue
+    build:
+      context: ./
+      dockerfile: ./config/rust.dockerfile
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./:/usr/src/myapp/
+    command: bash -c "cargo watch -x run"
+    networks:
+      - mtq
+  sender:
+    container_name: sender
+    build:
+      context: ./
+      dockerfile: ./config/rust.dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/usr/src/myapp/
+    command: bash -c "cargo watch -x run"
+    depends_on:
+      - queue
+    networks:
+      - mtq
